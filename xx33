@@ -1,0 +1,15 @@
+-- Data for Name: productmodelillustration; Type: TABLE DATA; Schema: production; Owner: adventureworks_user
+--
+
+COPY production.productmodelillustration (productmodelid, illustrationid, modifieddate) FROM stdin;
+7	3	2014-01-09 14:41:02.167
+10	3	2014-01-09 14:41:02.167
+47	4	2014-01-09 14:41:02.183
+47	5	2014-01-09 14:41:02.183
+48	4	2014-01-09 14:41:02.183
+48	5	2014-01-09 14:41:02.183
+67	6	2014-01-09 14:41:02.2
+\.
+
+
+--
