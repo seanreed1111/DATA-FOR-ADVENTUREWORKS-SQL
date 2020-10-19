@@ -1,18 +1,18 @@
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+-- SET statement_timeout = 0;
+-- SET search_path = 'public';
+-- SET lock_timeout = 0;
+-- SET idle_in_transaction_session_timeout = 0;
+-- SET client_encoding = 'UTF8';
+-- SET standard_conforming_strings = on;
+-- SELECT pg_catalog.set_config('search_path', '', false);
+-- SET check_function_bodies = false;
+-- SET xmloption = content;
+-- SET client_min_messages = warning;
+-- SET row_security = off;
+-- SET default_tablespace = '';
 
 CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
-
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 CREATE DOMAIN public."AccountNumber" AS character varying(15);
@@ -20,7 +20,10 @@ CREATE DOMAIN public."Flag" AS boolean NOT NULL;
 CREATE DOMAIN public."Name" AS character varying(50);
 CREATE DOMAIN public."NameStyle" AS boolean NOT NULL;
 CREATE DOMAIN public."OrderNumber" AS character varying(25);
-CREATE DOMAIN public."Phone" AS character varying(25);SET default_tablespace = '';
+CREATE DOMAIN public."Phone" AS character varying(25);
+
+BEGIN;
+SET schema 'public';
 
 CREATE TABLE department (
     departmentid integer NOT NULL,
@@ -28,7 +31,6 @@ CREATE TABLE department (
     groupname public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
 
 CREATE TABLE employee (
     businessentityid integer NOT NULL,
@@ -53,8 +55,6 @@ CREATE TABLE employee (
     CONSTRAINT "CK_Employee_SickLeaveHours" CHECK (((sickleavehours >= 0) AND (sickleavehours <= 120))),
     CONSTRAINT "CK_Employee_VacationHours" CHECK (((vacationhours >= '-40'::integer) AND (vacationhours <= 240)))
 );
-
-
 CREATE TABLE employeepayhistory (
     businessentityid integer NOT NULL,
     ratechangedate timestamp without time zone NOT NULL,
@@ -79,44 +79,6 @@ CREATE TABLE shift (
     endtime time without time zone NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-
-
-CREATE SEQUENCE department_departmentid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE department_departmentid_seq OWNED BY department.departmentid;
-
-CREATE SEQUENCE jobcandidate_jobcandidateid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE jobcandidate_jobcandidateid_seq OWNED BY jobcandidate.jobcandidateid;
-
-CREATE SEQUENCE shift_shiftid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE shift_shiftid_seq OWNED BY shift.shiftid;
 
 CREATE TABLE address (
     addressid integer NOT NULL,
@@ -170,7 +132,6 @@ CREATE TABLE person (
     CONSTRAINT "CK_Person_PersonType" CHECK (((persontype IS NULL) OR (upper((persontype)::text) = ANY (ARRAY['SC'::text, 'VC'::text, 'IN'::text, 'EM'::text, 'SP'::text, 'GC'::text]))))
 );
 
-
 CREATE TABLE personphone (
     businessentityid integer NOT NULL,
     phonenumber public."Phone" NOT NULL,
@@ -203,15 +164,11 @@ CREATE TABLE addresstype (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
 CREATE TABLE businessentity (
     businessentityid integer NOT NULL,
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-
-
 
 CREATE TABLE businessentitycontact (
     businessentityid integer NOT NULL,
@@ -227,7 +184,6 @@ CREATE TABLE contacttype (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
 CREATE TABLE password (
     businessentityid integer NOT NULL,
     passwordhash character varying(128) NOT NULL,
@@ -235,91 +191,6 @@ CREATE TABLE password (
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-
-CREATE SEQUENCE address_addressid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE address_addressid_seq OWNED BY address.addressid;
-
-CREATE SEQUENCE addresstype_addresstypeid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE addresstype_addresstypeid_seq OWNED BY addresstyaddresstypeid;
-
-CREATE SEQUENCE businessentity_businessentityid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE businessentity_businessentityid_seq OWNED BY businessentity.businessentityid;
-
-CREATE SEQUENCE contacttype_contacttypeid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE contacttype_contacttypeid_seq OWNED BY contacttycontacttypeid;
-
-CREATE SEQUENCE emailaddress_emailaddressid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE emailaddress_emailaddressid_seq OWNED BY emailaddress.emailaddressid;
-
-CREATE SEQUENCE phonenumbertype_phonenumbertypeid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE phonenumbertype_phonenumbertypeid_seq OWNED BY phonenumbertyphonenumbertypeid;
-
-CREATE SEQUENCE stateprovince_stateprovinceid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE stateprovince_stateprovinceid_seq OWNED BY stateprovince.stateprovinceid;
 
 CREATE TABLE billofmaterials (
     billofmaterialsid integer NOT NULL,
@@ -359,13 +230,12 @@ CREATE TABLE document (
     documentnode character varying DEFAULT '/'::character varying NOT NULL,
     CONSTRAINT "CK_Document_Status" CHECK (((status >= 1) AND (status <= 3)))
 );
+
 CREATE TABLE illustration (
     illustrationid integer NOT NULL,
     diagram xml,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-
 CREATE TABLE location (
     locationid integer NOT NULL,
     name public."Name" NOT NULL,
@@ -375,7 +245,6 @@ CREATE TABLE location (
     CONSTRAINT "CK_Location_Availability" CHECK ((availability >= 0.00)),
     CONSTRAINT "CK_Location_CostRate" CHECK ((costrate >= 0.00))
 );
-
 
 CREATE TABLE product (
     productid integer NOT NULL,
@@ -415,7 +284,6 @@ CREATE TABLE product (
     CONSTRAINT "CK_Product_Weight" CHECK ((weight > 0.00))
 );
 
-
 CREATE TABLE productcategory (
     productcategoryid integer NOT NULL,
     name public."Name" NOT NULL,
@@ -432,9 +300,6 @@ CREATE TABLE productcosthistory (
     CONSTRAINT "CK_ProductCostHistory_EndDate" CHECK (((enddate >= startdate) OR (enddate IS NULL))),
     CONSTRAINT "CK_ProductCostHistory_StandardCost" CHECK ((standardcost >= 0.00))
 );
-
-
-
 
 CREATE TABLE productdescription (
     productdescriptionid integer NOT NULL,
@@ -459,18 +324,6 @@ CREATE TABLE productinventory (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_ProductInventory_Bin" CHECK (((bin >= 0) AND (bin <= 100)))
 );
-CREATE VIEW pi AS
- SELECT productinventory.productid AS id,
-    productinventory.productid,
-    productinventory.locationid,
-    productinventory.shelf,
-    productinventory.bin,
-    productinventory.quantity,
-    productinventory.rowguid,
-    productinventory.modifieddate
-   FROM productinventory;
-
-
 
 CREATE TABLE productlistpricehistory (
     productid integer NOT NULL,
@@ -482,19 +335,6 @@ CREATE TABLE productlistpricehistory (
     CONSTRAINT "CK_ProductListPriceHistory_ListPrice" CHECK ((listprice > 0.00))
 );
 
-
-
-CREATE VIEW plph AS
- SELECT productlistpricehistory.productid AS id,
-    productlistpricehistory.productid,
-    productlistpricehistory.startdate,
-    productlistpricehistory.enddate,
-    productlistpricehistory.listprice,
-    productlistpricehistory.modifieddate
-   FROM productlistpricehistory;
-
-
-
 CREATE TABLE productmodel (
     productmodelid integer NOT NULL,
     name public."Name" NOT NULL,
@@ -504,31 +344,11 @@ CREATE TABLE productmodel (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
-
-CREATE VIEW pm AS
- SELECT productmodel.productmodelid AS id,
-    productmodel.productmodelid,
-    productmodel.name,
-    productmodel.catalogdescription,
-    productmodel.instructions,
-    productmodel.rowguid,
-    productmodel.modifieddate
-   FROM productmodel;
-
-
-
 CREATE TABLE productmodelillustration (
     productmodelid integer NOT NULL,
     illustrationid integer NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW pmi AS
- SELECT productmodelillustration.productmodelid,
-    productmodelillustration.illustrationid,
-    productmodelillustration.modifieddate
-   FROM productmodelillustration;
-
-
+);
 
 CREATE TABLE productmodelproductdescriptionculture (
     productmodelid integer NOT NULL,
@@ -536,15 +356,6 @@ CREATE TABLE productmodelproductdescriptionculture (
     cultureid character(6) NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-CREATE VIEW pmpdc AS
- SELECT productmodelproductdescriptionculture.productmodelid,
-    productmodelproductdescriptionculture.productdescriptionid,
-    productmodelproductdescriptionculture.cultureid,
-    productmodelproductdescriptionculture.modifieddate
-   FROM productmodelproductdescriptionculture;
-
-
 
 CREATE TABLE productphoto (
     productphotoid integer NOT NULL,
@@ -554,17 +365,6 @@ CREATE TABLE productphoto (
     largephotofilename character varying(50),
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-CREATE VIEW pp AS
- SELECT productphoto.productphotoid AS id,
-    productphoto.productphotoid,
-    productphoto.thumbnailphoto,
-    productphoto.thumbnailphotofilename,
-    productphoto.largephoto,
-    productphoto.largephotofilename,
-    productphoto.modifieddate
-   FROM productphoto;
-
-
 
 CREATE TABLE productproductphoto (
     productid integer NOT NULL,
@@ -572,15 +372,6 @@ CREATE TABLE productproductphoto (
     "primary" public."Flag" DEFAULT false NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-CREATE VIEW ppp AS
- SELECT productproductphoto.productid,
-    productproductphoto.productphotoid,
-    productproductphoto."primary",
-    productproductphoto.modifieddate
-   FROM productproductphoto;
-
-
 
 CREATE TABLE productreview (
     productreviewid integer NOT NULL,
@@ -592,19 +383,7 @@ CREATE TABLE productreview (
     
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_ProductReview_Rating" CHECK (((rating >= 1) AND (rating <= 5)))
-);CREATE VIEW pr AS
- SELECT productreview.productreviewid AS id,
-    productreview.productreviewid,
-    productreview.productid,
-    productreview.reviewername,
-    productreview.reviewdate,
-    productreview.emailaddress,
-    productreview.rating,
-    productreview.
-    productreview.modifieddate
-   FROM productreview;
-
-
+);
 
 CREATE TABLE productsubcategory (
     productsubcategoryid integer NOT NULL,
@@ -614,29 +393,11 @@ CREATE TABLE productsubcategory (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-CREATE VIEW psc AS
- SELECT productsubcategory.productsubcategoryid AS id,
-    productsubcategory.productsubcategoryid,
-    productsubcategory.productcategoryid,
-    productsubcategory.name,
-    productsubcategory.rowguid,
-    productsubcategory.modifieddate
-   FROM productsubcategory;
-
-
-
 CREATE TABLE scrapreason (
     scrapreasonid integer NOT NULL,
     name public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW sr AS
- SELECT scrapreason.scrapreasonid AS id,
-    scrapreason.scrapreasonid,
-    scrapreason.name,
-    scrapreason.modifieddate
-   FROM scrapreason;
-
-
+);
 
 CREATE TABLE transactionhistory (
     transactionid integer NOT NULL,
@@ -651,21 +412,6 @@ CREATE TABLE transactionhistory (
     CONSTRAINT "CK_TransactionHistory_TransactionType" CHECK ((upper((transactiontype)::text) = ANY (ARRAY['W'::text, 'S'::text, 'P'::text])))
 );
 
-CREATE VIEW th AS
- SELECT transactionhistory.transactionid AS id,
-    transactionhistory.transactionid,
-    transactionhistory.productid,
-    transactionhistory.referenceorderid,
-    transactionhistory.referenceorderlineid,
-    transactionhistory.transactiondate,
-    transactionhistory.transactiontype,
-    transactionhistory.quantity,
-    transactionhistory.actualcost,
-    transactionhistory.modifieddate
-   FROM transactionhistory;
-
-
-
 CREATE TABLE transactionhistoryarchive (
     transactionid integer NOT NULL,
     productid integer NOT NULL,
@@ -679,33 +425,11 @@ CREATE TABLE transactionhistoryarchive (
     CONSTRAINT "CK_TransactionHistoryArchive_TransactionType" CHECK ((upper((transactiontype)::text) = ANY (ARRAY['W'::text, 'S'::text, 'P'::text])))
 );
 
-CREATE VIEW tha AS
- SELECT transactionhistoryarchive.transactionid AS id,
-    transactionhistoryarchive.transactionid,
-    transactionhistoryarchive.productid,
-    transactionhistoryarchive.referenceorderid,
-    transactionhistoryarchive.referenceorderlineid,
-    transactionhistoryarchive.transactiondate,
-    transactionhistoryarchive.transactiontype,
-    transactionhistoryarchive.quantity,
-    transactionhistoryarchive.actualcost,
-    transactionhistoryarchive.modifieddate
-   FROM transactionhistoryarchive;
-
-
-
 CREATE TABLE unitmeasure (
     unitmeasurecode character(3) NOT NULL,
     name public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW um AS
- SELECT unitmeasure.unitmeasurecode AS id,
-    unitmeasure.unitmeasurecode,
-    unitmeasure.name,
-    unitmeasure.modifieddate
-   FROM unitmeasure;
-
-
+);
 
 CREATE TABLE workorder (
     workorderid integer NOT NULL,
@@ -721,21 +445,6 @@ CREATE TABLE workorder (
     CONSTRAINT "CK_WorkOrder_OrderQty" CHECK ((orderqty > 0)),
     CONSTRAINT "CK_WorkOrder_ScrappedQty" CHECK ((scrappedqty >= 0))
 );
-
-CREATE VIEW w AS
- SELECT workorder.workorderid AS id,
-    workorder.workorderid,
-    workorder.productid,
-    workorder.orderqty,
-    workorder.scrappedqty,
-    workorder.startdate,
-    workorder.enddate,
-    workorder.duedate,
-    workorder.scrapreasonid,
-    workorder.modifieddate
-   FROM workorder;
-
-
 
 CREATE TABLE workorderrouting (
     workorderid integer NOT NULL,
@@ -758,254 +467,6 @@ CREATE TABLE workorderrouting (
 );
 
 
-CREATE VIEW wr AS
- SELECT workorderrouting.workorderid AS id,
-    workorderrouting.workorderid,
-    workorderrouting.productid,
-    workorderrouting.operationsequence,
-    workorderrouting.locationid,
-    workorderrouting.scheduledstartdate,
-    workorderrouting.scheduledenddate,
-    workorderrouting.actualstartdate,
-    workorderrouting.actualenddate,
-    workorderrouting.actualresourcehrs,
-    workorderrouting.plannedcost,
-    workorderrouting.actualcost,
-    workorderrouting.modifieddate
-   FROM workorderrouting;
-
-
-
-CREATE SEQUENCE billofmaterials_billofmaterialsid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE billofmaterials_billofmaterialsid_seq OWNED BY billofmaterials.billofmaterialsid;
-
-CREATE SEQUENCE illustration_illustrationid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE illustration_illustrationid_seq OWNED BY illustration.illustrationid;
-
-CREATE SEQUENCE location_locationid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE location_locationid_seq OWNED BY location.locationid;
-
-CREATE SEQUENCE product_productid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE product_productid_seq OWNED BY product.productid;
-
-CREATE SEQUENCE productcategory_productcategoryid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productcategory_productcategoryid_seq OWNED BY productcategory.productcategoryid;
-
-CREATE SEQUENCE productdescription_productdescriptionid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productdescription_productdescriptionid_seq OWNED BY productdescription.productdescriptionid;
-
-CREATE SEQUENCE productmodel_productmodelid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productmodel_productmodelid_seq OWNED BY productmodel.productmodelid;
-
-CREATE SEQUENCE productphoto_productphotoid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productphoto_productphotoid_seq OWNED BY productphoto.productphotoid;
-
-CREATE SEQUENCE productreview_productreviewid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productreview_productreviewid_seq OWNED BY productreview.productreviewid;
-
-CREATE SEQUENCE productsubcategory_productsubcategoryid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE productsubcategory_productsubcategoryid_seq OWNED BY productsubcategory.productsubcategoryid;
-
-CREATE SEQUENCE scrapreason_scrapreasonid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE scrapreason_scrapreasonid_seq OWNED BY scrapreason.scrapreasonid;
-
-CREATE SEQUENCE transactionhistory_transactionid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE transactionhistory_transactionid_seq OWNED BY transactionhistory.transactionid;
-
-CREATE MATERIALIZED VIEW vproductanddescription AS
- SELECT p.productid,
-    p.name,
-    pm.name AS productmodel,
-    pmx.cultureid,
-    pd.description
-   FROM (((product p
-     JOIN productmodel pm ON ((p.productmodelid = pm.productmodelid)))
-     JOIN productmodelproductdescriptionculture pmx ON ((pm.productmodelid = pmx.productmodelid)))
-     JOIN productdescription pd ON ((pmx.productdescriptionid = pd.productdescriptionid)))
-  WITH NO DATA;
-
-
-
-CREATE VIEW vproductmodelcatalogdescription AS
- SELECT productmodel.productmodelid,
-    productmodel.name,
-    ((xpath('/p1:ProductDescription/p1:Summary/html:p/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{html,http://www.w3.org/1999/xhtml}}'::text[]))[1])::character varying AS "Summary",
-    ((xpath('/p1:ProductDescription/p1:Manufacturer/p1:Name/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying AS manufacturer,
-    ((xpath('/p1:ProductDescription/p1:Manufacturer/p1:Copyright/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(30) AS copyright,
-    ((xpath('/p1:ProductDescription/p1:Manufacturer/p1:ProductURL/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS producturl,
-    ((xpath('/p1:ProductDescription/p1:Features/wm:Warranty/wm:WarrantyPeriod/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wm,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain}}'::text[]))[1])::character varying(256) AS warrantyperiod,
-    ((xpath('/p1:ProductDescription/p1:Features/wm:Warranty/wm:Description/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wm,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain}}'::text[]))[1])::character varying(256) AS warrantydescription,
-    ((xpath('/p1:ProductDescription/p1:Features/wm:Maintenance/wm:NoOfYears/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wm,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain}}'::text[]))[1])::character varying(256) AS noofyears,
-    ((xpath('/p1:ProductDescription/p1:Features/wm:Maintenance/wm:Description/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wm,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelWarrAndMain}}'::text[]))[1])::character varying(256) AS maintenancedescription,
-    ((xpath('/p1:ProductDescription/p1:Features/wf:wheel/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wf,http://www.adventure-works.com/schemas/OtherFeatures}}'::text[]))[1])::character varying(256) AS wheel,
-    ((xpath('/p1:ProductDescription/p1:Features/wf:saddle/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wf,http://www.adventure-works.com/schemas/OtherFeatures}}'::text[]))[1])::character varying(256) AS saddle,
-    ((xpath('/p1:ProductDescription/p1:Features/wf:pedal/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wf,http://www.adventure-works.com/schemas/OtherFeatures}}'::text[]))[1])::character varying(256) AS pedal,
-    ((xpath('/p1:ProductDescription/p1:Features/wf:BikeFrame/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wf,http://www.adventure-works.com/schemas/OtherFeatures}}'::text[]))[1])::character varying AS bikeframe,
-    ((xpath('/p1:ProductDescription/p1:Features/wf:crankset/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription},{wf,http://www.adventure-works.com/schemas/OtherFeatures}}'::text[]))[1])::character varying(256) AS crankset,
-    ((xpath('/p1:ProductDescription/p1:Picture/p1:Angle/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS pictureangle,
-    ((xpath('/p1:ProductDescription/p1:Picture/p1:Size/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS picturesize,
-    ((xpath('/p1:ProductDescription/p1:Picture/p1:ProductPhotoID/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS productphotoid,
-    ((xpath('/p1:ProductDescription/p1:Specifications/Material/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS material,
-    ((xpath('/p1:ProductDescription/p1:Specifications/Color/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS color,
-    ((xpath('/p1:ProductDescription/p1:Specifications/ProductLine/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS productline,
-    ((xpath('/p1:ProductDescription/p1:Specifications/Style/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(256) AS style,
-    ((xpath('/p1:ProductDescription/p1:Specifications/RiderExperience/text()'::text, productmodel.catalogdescription, '{{p1,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelDescription}}'::text[]))[1])::character varying(1024) AS riderexperience,
-    productmodel.rowguid,
-    productmodel.modifieddate
-   FROM productmodel
-  WHERE (productmodel.catalogdescription IS NOT NULL);
-
-
-
-CREATE VIEW vproductmodelinstructions AS
- SELECT pm.productmodelid,
-    pm.name,
-    ((xpath('/ns:root/text()'::text, pm.instructions, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions}}'::text[]))[1])::character varying AS instructions,
-    (((xpath('@LocationID'::text, pm.mfginstructions))[1])::character varying)::integer AS "LocationID",
-    (((xpath('@SetupHours'::text, pm.mfginstructions))[1])::character varying)::numeric(9,4) AS "SetupHours",
-    (((xpath('@MachineHours'::text, pm.mfginstructions))[1])::character varying)::numeric(9,4) AS "MachineHours",
-    (((xpath('@LaborHours'::text, pm.mfginstructions))[1])::character varying)::numeric(9,4) AS "LaborHours",
-    (((xpath('@LotSize'::text, pm.mfginstructions))[1])::character varying)::integer AS "LotSize",
-    ((xpath('/step/text()'::text, pm.step))[1])::character varying(1024) AS "Step",
-    pm.rowguid,
-    pm.modifieddate
-   FROM ( SELECT locations.productmodelid,
-            locations.name,
-            locations.rowguid,
-            locations.modifieddate,
-            locations.instructions,
-            locations.mfginstructions,
-            unnest(xpath('step'::text, locations.mfginstructions)) AS step
-           FROM ( SELECT productmodel.productmodelid,
-                    productmodel.name,
-                    productmodel.rowguid,
-                    productmodel.modifieddate,
-                    productmodel.instructions,
-                    unnest(xpath('/ns:root/ns:Location'::text, productmodel.instructions, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions}}'::text[])) AS mfginstructions
-                   FROM productmodel) locations) pm;
-
-
-
-CREATE SEQUENCE workorder_workorderid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE workorder_workorderid_seq OWNED BY workorder.workorderid;
-
 CREATE TABLE purchaseorderdetail (
     purchaseorderid integer NOT NULL,
     purchaseorderdetailid integer NOT NULL,
@@ -1021,21 +482,6 @@ CREATE TABLE purchaseorderdetail (
     CONSTRAINT "CK_PurchaseOrderDetail_RejectedQty" CHECK ((rejectedqty >= 0.00)),
     CONSTRAINT "CK_PurchaseOrderDetail_UnitPrice" CHECK ((unitprice >= 0.00))
 );
-
-CREATE VIEW pod AS
- SELECT purchaseorderdetail.purchaseorderdetailid AS id,
-    purchaseorderdetail.purchaseorderid,
-    purchaseorderdetail.purchaseorderdetailid,
-    purchaseorderdetail.duedate,
-    purchaseorderdetail.orderqty,
-    purchaseorderdetail.productid,
-    purchaseorderdetail.unitprice,
-    purchaseorderdetail.receivedqty,
-    purchaseorderdetail.rejectedqty,
-    purchaseorderdetail.modifieddate
-   FROM purchaseorderdetail;
-
-
 
 CREATE TABLE purchaseorderheader (
     purchaseorderid integer NOT NULL,
@@ -1057,25 +503,6 @@ CREATE TABLE purchaseorderheader (
     CONSTRAINT "CK_PurchaseOrderHeader_TaxAmt" CHECK ((taxamt >= 0.00))
 );
 
-
-CREATE VIEW poh AS
- SELECT purchaseorderheader.purchaseorderid AS id,
-    purchaseorderheader.purchaseorderid,
-    purchaseorderheader.revisionnumber,
-    purchaseorderheader.status,
-    purchaseorderheader.employeeid,
-    purchaseorderheader.vendorid,
-    purchaseorderheader.shipmethodid,
-    purchaseorderheader.orderdate,
-    purchaseorderheader.shipdate,
-    purchaseorderheader.subtotal,
-    purchaseorderheader.taxamt,
-    purchaseorderheader.freight,
-    purchaseorderheader.modifieddate
-   FROM purchaseorderheader;
-
-
-
 CREATE TABLE productvendor (
     productid integer NOT NULL,
     businessentityid integer NOT NULL,
@@ -1095,22 +522,6 @@ CREATE TABLE productvendor (
     CONSTRAINT "CK_ProductVendor_OnOrderQty" CHECK ((onorderqty >= 0)),
     CONSTRAINT "CK_ProductVendor_StandardPrice" CHECK ((standardprice > 0.00))
 );
-CREATE VIEW pv AS
- SELECT productvendor.productid AS id,
-    productvendor.productid,
-    productvendor.businessentityid,
-    productvendor.averageleadtime,
-    productvendor.standardprice,
-    productvendor.lastreceiptcost,
-    productvendor.lastreceiptdate,
-    productvendor.minorderqty,
-    productvendor.maxorderqty,
-    productvendor.onorderqty,
-    productvendor.unitmeasurecode,
-    productvendor.modifieddate
-   FROM productvendor;
-
-
 
 CREATE TABLE shipmethod (
     shipmethodid integer NOT NULL,
@@ -1123,20 +534,6 @@ CREATE TABLE shipmethod (
     CONSTRAINT "CK_ShipMethod_ShipRate" CHECK ((shiprate > 0.00))
 );
 
-
-
-CREATE VIEW sm AS
- SELECT shipmethod.shipmethodid AS id,
-    shipmethod.shipmethodid,
-    shipmethod.name,
-    shipmethod.shipbase,
-    shipmethod.shiprate,
-    shipmethod.rowguid,
-    shipmethod.modifieddate
-   FROM shipmethod;
-
-
-
 CREATE TABLE vendor (
     businessentityid integer NOT NULL,
     accountnumber public."AccountNumber" NOT NULL,
@@ -1147,97 +544,7 @@ CREATE TABLE vendor (
     purchasingwebserviceurl character varying(1024),
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_Vendor_CreditRating" CHECK (((creditrating >= 1) AND (creditrating <= 5)))
-);CREATE VIEW v AS
- SELECT vendor.businessentityid AS id,
-    vendor.businessentityid,
-    vendor.accountnumber,
-    vendor.name,
-    vendor.creditrating,
-    vendor.preferredvendorstatus,
-    vendor.activeflag,
-    vendor.purchasingwebserviceurl,
-    vendor.modifieddate
-   FROM vendor;
-
-
-
-CREATE SEQUENCE purchaseorderdetail_purchaseorderdetailid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE purchaseorderdetail_purchaseorderdetailid_seq OWNED BY purchaseorderdetail.purchaseorderdetailid;
-
-CREATE SEQUENCE purchaseorderheader_purchaseorderid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE purchaseorderheader_purchaseorderid_seq OWNED BY purchaseorderheader.purchaseorderid;
-
-CREATE SEQUENCE shipmethod_shipmethodid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE shipmethod_shipmethodid_seq OWNED BY shipmethod.shipmethodid;
-
-CREATE VIEW vvendorwithaddresses AS
- SELECT v.businessentityid,
-    v.name,
-    at.name AS addresstype,
-    a.addressline1,
-    a.addressline2,
-    a.city,
-    sp.name AS stateprovincename,
-    a.postalcode,
-    cr.name AS countryregionname
-   FROM (((((vendor v
-     JOIN businessentityaddress bea ON ((bea.businessentityid = v.businessentityid)))
-     JOIN address a ON ((a.addressid = bea.addressid)))
-     JOIN stateprovince sp ON ((sp.stateprovinceid = a.stateprovinceid)))
-     JOIN countryregion cr ON (((cr.countryregioncode)::text = (sp.countryregioncode)::text)))
-     JOIN addresstype at ON ((at.addresstypeid = bea.addresstypeid)));
-
-
-
-CREATE VIEW vvendorwithcontacts AS
- SELECT v.businessentityid,
-    v.name,
-    ct.name AS contacttype,
-    p.title,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.suffix,
-    pp.phonenumber,
-    pnt.name AS phonenumbertype,
-    ea.emailaddress,
-    p.emailpromotion
-   FROM ((((((vendor v
-     JOIN businessentitycontact bec ON ((bec.businessentityid = v.businessentityid)))
-     JOIN contacttype ct ON ((ct.contacttypeid = bec.contacttypeid)))
-     JOIN person p ON ((p.businessentityid = bec.personid)))
-     LEFT JOIN emailaddress ea ON ((ea.businessentityid = p.businessentityid)))
-     LEFT JOIN personphone pp ON ((pp.businessentityid = p.businessentityid)))
-     LEFT JOIN phonenumbertype pnt ON ((pnt.phonenumbertypeid = pp.phonenumbertypeid)));
-
-
+);
 
 CREATE TABLE customer (
     customerid integer NOT NULL,
@@ -1248,20 +555,6 @@ CREATE TABLE customer (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
-
-CREATE VIEW c AS
- SELECT customer.customerid AS id,
-    customer.customerid,
-    customer.personid,
-    customer.storeid,
-    customer.territoryid,
-    customer.rowguid,
-    customer.modifieddate
-   FROM customer;
-
-
-
 CREATE TABLE creditcard (
     creditcardid integer NOT NULL,
     cardtype character varying(50) NOT NULL,
@@ -1270,17 +563,6 @@ CREATE TABLE creditcard (
     expyear smallint NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-CREATE VIEW cc AS
- SELECT creditcard.creditcardid AS id,
-    creditcard.creditcardid,
-    creditcard.cardtype,
-    creditcard.cardnumber,
-    creditcard.expmonth,
-    creditcard.expyear,
-    creditcard.modifieddate
-   FROM creditcard;
-
-
 
 CREATE TABLE currencyrate (
     currencyrateid integer NOT NULL,
@@ -1291,57 +573,23 @@ CREATE TABLE currencyrate (
     endofdayrate numeric NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-
-CREATE VIEW cr AS
- SELECT currencyrate.currencyrateid,
-    currencyrate.currencyratedate,
-    currencyrate.fromcurrencycode,
-    currencyrate.tocurrencycode,
-    currencyrate.averagerate,
-    currencyrate.endofdayrate,
-    currencyrate.modifieddate
-   FROM currencyrate;
-
-
-
 CREATE TABLE countryregioncurrency (
     countryregioncode character varying(3) NOT NULL,
     currencycode character(3) NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW crc AS
- SELECT countryregioncurrency.countryregioncode,
-    countryregioncurrency.currencycode,
-    countryregioncurrency.modifieddate
-   FROM countryregioncurrency;
-
-
+);
 
 CREATE TABLE currency (
     currencycode character(3) NOT NULL,
     name public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW cu AS
- SELECT currency.currencycode AS id,
-    currency.currencycode,
-    currency.name,
-    currency.modifieddate
-   FROM currency;
-
-
+);
 
 CREATE TABLE personcreditcard (
     businessentityid integer NOT NULL,
     creditcardid integer NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW pcc AS
- SELECT personcreditcard.businessentityid AS id,
-    personcreditcard.businessentityid,
-    personcreditcard.creditcardid,
-    personcreditcard.modifieddate
-   FROM personcreditcard;
-
-
+);
 
 CREATE TABLE store (
     businessentityid integer NOT NULL,
@@ -1352,20 +600,6 @@ CREATE TABLE store (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
-
-CREATE VIEW s AS
- SELECT store.businessentityid AS id,
-    store.businessentityid,
-    store.name,
-    store.salespersonid,
-    store.demographics,
-    store.rowguid,
-    store.modifieddate
-   FROM store;
-
-
-
 CREATE TABLE shoppingcartitem (
     shoppingcartitemid integer NOT NULL,
     shoppingcartid character varying(50) NOT NULL,
@@ -1375,17 +609,6 @@ CREATE TABLE shoppingcartitem (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_ShoppingCartItem_Quantity" CHECK ((quantity >= 1))
 );
-CREATE VIEW sci AS
- SELECT shoppingcartitem.shoppingcartitemid AS id,
-    shoppingcartitem.shoppingcartitemid,
-    shoppingcartitem.shoppingcartid,
-    shoppingcartitem.quantity,
-    shoppingcartitem.productid,
-    shoppingcartitem.datecreated,
-    shoppingcartitem.modifieddate
-   FROM shoppingcartitem;
-
-
 
 CREATE TABLE specialoffer (
     specialofferid integer NOT NULL,
@@ -1405,25 +628,6 @@ CREATE TABLE specialoffer (
     CONSTRAINT "CK_SpecialOffer_MinQty" CHECK ((minqty >= 0))
 );
 
-
-
-CREATE VIEW so AS
- SELECT specialoffer.specialofferid AS id,
-    specialoffer.specialofferid,
-    specialoffer.description,
-    specialoffer.discountpct,
-    specialoffer.type,
-    specialoffer.category,
-    specialoffer.startdate,
-    specialoffer.enddate,
-    specialoffer.minqty,
-    specialoffer.maxqty,
-    specialoffer.rowguid,
-    specialoffer.modifieddate
-   FROM specialoffer;
-
-
-
 CREATE TABLE salesorderdetail (
     salesorderid integer NOT NULL,
     salesorderdetailid integer NOT NULL,
@@ -1439,22 +643,6 @@ CREATE TABLE salesorderdetail (
     CONSTRAINT "CK_SalesOrderDetail_UnitPrice" CHECK ((unitprice >= 0.00)),
     CONSTRAINT "CK_SalesOrderDetail_UnitPriceDiscount" CHECK ((unitpricediscount >= 0.00))
 );
-
-CREATE VIEW sod AS
- SELECT salesorderdetail.salesorderdetailid AS id,
-    salesorderdetail.salesorderid,
-    salesorderdetail.salesorderdetailid,
-    salesorderdetail.carriertrackingnumber,
-    salesorderdetail.orderqty,
-    salesorderdetail.productid,
-    salesorderdetail.specialofferid,
-    salesorderdetail.unitprice,
-    salesorderdetail.unitpricediscount,
-    salesorderdetail.rowguid,
-    salesorderdetail.modifieddate
-   FROM salesorderdetail;
-
-
 
 CREATE TABLE salesorderheader (
     salesorderid integer NOT NULL,
@@ -1490,63 +678,18 @@ CREATE TABLE salesorderheader (
     CONSTRAINT "CK_SalesOrderHeader_TaxAmt" CHECK ((taxamt >= 0.00))
 );
 
-CREATE VIEW soh AS
- SELECT salesorderheader.salesorderid AS id,
-    salesorderheader.salesorderid,
-    salesorderheader.revisionnumber,
-    salesorderheader.orderdate,
-    salesorderheader.duedate,
-    salesorderheader.shipdate,
-    salesorderheader.status,
-    salesorderheader.onlineorderflag,
-    salesorderheader.purchaseordernumber,
-    salesorderheader.accountnumber,
-    salesorderheader.customerid,
-    salesorderheader.salespersonid,
-    salesorderheader.territoryid,
-    salesorderheader.billtoaddressid,
-    salesorderheader.shiptoaddressid,
-    salesorderheader.shipmethodid,
-    salesorderheader.creditcardid,
-    salesorderheader.creditcardapprovalcode,
-    salesorderheader.currencyrateid,
-    salesorderheader.subtotal,
-    salesorderheader.taxamt,
-    salesorderheader.freight,
-    salesorderheader.totaldue,
-    salesorderheader.
-    salesorderheader.rowguid,
-    salesorderheader.modifieddate
-   FROM salesorderheader;
-
-
-
 CREATE TABLE salesorderheadersalesreason (
     salesorderid integer NOT NULL,
     salesreasonid integer NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW sohsr AS
- SELECT salesorderheadersalesreason.salesorderid,
-    salesorderheadersalesreason.salesreasonid,
-    salesorderheadersalesreason.modifieddate
-   FROM salesorderheadersalesreason;
-
-
+);
 
 CREATE TABLE specialofferproduct (
     specialofferid integer NOT NULL,
     productid integer NOT NULL,
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW sop AS
- SELECT specialofferproduct.specialofferid AS id,
-    specialofferproduct.specialofferid,
-    specialofferproduct.productid,
-    specialofferproduct.rowguid,
-    specialofferproduct.modifieddate
-   FROM specialofferproduct;
-
-
+);
 
 CREATE TABLE salesperson (
     businessentityid integer NOT NULL,
@@ -1563,20 +706,7 @@ CREATE TABLE salesperson (
     CONSTRAINT "CK_SalesPerson_SalesLastYear" CHECK ((saleslastyear >= 0.00)),
     CONSTRAINT "CK_SalesPerson_SalesQuota" CHECK ((salesquota > 0.00)),
     CONSTRAINT "CK_SalesPerson_SalesYTD" CHECK ((salesytd >= 0.00))
-);CREATE VIEW sp AS
- SELECT salesbusinessentityid AS id,
-    salesbusinessentityid,
-    salesterritoryid,
-    salessalesquota,
-    salesbonus,
-    salescommissionpct,
-    salessalesytd,
-    salessaleslastyear,
-    salesrowguid,
-    salesmodifieddate
-   FROM salesperson;
-
-
+);
 
 CREATE TABLE salespersonquotahistory (
     businessentityid integer NOT NULL,
@@ -1587,33 +717,12 @@ CREATE TABLE salespersonquotahistory (
     CONSTRAINT "CK_SalesPersonQuotaHistory_SalesQuota" CHECK ((salesquota > 0.00))
 );
 
-CREATE VIEW spqh AS
- SELECT salespersonquotahistory.businessentityid AS id,
-    salespersonquotahistory.businessentityid,
-    salespersonquotahistory.quotadate,
-    salespersonquotahistory.salesquota,
-    salespersonquotahistory.rowguid,
-    salespersonquotahistory.modifieddate
-   FROM salespersonquotahistory;
-
-
-
 CREATE TABLE salesreason (
     salesreasonid integer NOT NULL,
     name public."Name" NOT NULL,
     reasontype public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
 );
-
-CREATE VIEW sr AS
- SELECT salesreason.salesreasonid AS id,
-    salesreason.salesreasonid,
-    salesreason.name,
-    salesreason.reasontype,
-    salesreason.modifieddate
-   FROM salesreason;
-
-
 
 CREATE TABLE salesterritory (
     territoryid integer NOT NULL,
@@ -1632,22 +741,6 @@ CREATE TABLE salesterritory (
     CONSTRAINT "CK_SalesTerritory_SalesYTD" CHECK ((salesytd >= 0.00))
 );
 
-CREATE VIEW st AS
- SELECT salesterritory.territoryid AS id,
-    salesterritory.territoryid,
-    salesterritory.name,
-    salesterritory.countryregioncode,
-    salesterritory."group",
-    salesterritory.salesytd,
-    salesterritory.saleslastyear,
-    salesterritory.costytd,
-    salesterritory.costlastyear,
-    salesterritory.rowguid,
-    salesterritory.modifieddate
-   FROM salesterritory;
-
-
-
 CREATE TABLE salesterritoryhistory (
     businessentityid integer NOT NULL,
     territoryid integer NOT NULL,
@@ -1657,20 +750,6 @@ CREATE TABLE salesterritoryhistory (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_SalesTerritoryHistory_EndDate" CHECK (((enddate >= startdate) OR (enddate IS NULL)))
 );
-
-
-
-CREATE VIEW sth AS
- SELECT salesterritoryhistory.territoryid AS id,
-    salesterritoryhistory.businessentityid,
-    salesterritoryhistory.territoryid,
-    salesterritoryhistory.startdate,
-    salesterritoryhistory.enddate,
-    salesterritoryhistory.rowguid,
-    salesterritoryhistory.modifieddate
-   FROM salesterritoryhistory;
-
-
 
 CREATE TABLE salestaxrate (
     salestaxrateid integer NOT NULL,
@@ -1682,400 +761,6 @@ CREATE TABLE salestaxrate (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT "CK_SalesTaxRate_TaxType" CHECK (((taxtype >= 1) AND (taxtype <= 3)))
 );
-CREATE VIEW tr AS
- SELECT salestaxrate.salestaxrateid AS id,
-    salestaxrate.salestaxrateid,
-    salestaxrate.stateprovinceid,
-    salestaxrate.taxtype,
-    salestaxrate.taxrate,
-    salestaxrate.name,
-    salestaxrate.rowguid,
-    salestaxrate.modifieddate
-   FROM salestaxrate;
 
 
-
-CREATE SEQUENCE creditcard_creditcardid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE creditcard_creditcardid_seq OWNED BY creditcard.creditcardid;
-
-CREATE SEQUENCE currencyrate_currencyrateid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE currencyrate_currencyrateid_seq OWNED BY currencyrate.currencyrateid;
-
-CREATE SEQUENCE customer_customerid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE customer_customerid_seq OWNED BY customer.customerid;
-
-CREATE SEQUENCE salesorderdetail_salesorderdetailid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE salesorderdetail_salesorderdetailid_seq OWNED BY salesorderdetail.salesorderdetailid;
-
-CREATE SEQUENCE salesorderheader_salesorderid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE salesorderheader_salesorderid_seq OWNED BY salesorderheader.salesorderid;
-
-CREATE SEQUENCE salesreason_salesreasonid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE salesreason_salesreasonid_seq OWNED BY salesreason.salesreasonid;
-
-CREATE SEQUENCE salestaxrate_salestaxrateid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE salestaxrate_salestaxrateid_seq OWNED BY salestaxrate.salestaxrateid;
-
-CREATE SEQUENCE salesterritory_territoryid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE salesterritory_territoryid_seq OWNED BY salesterritory.territoryid;
-
-CREATE SEQUENCE shoppingcartitem_shoppingcartitemid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE shoppingcartitem_shoppingcartitemid_seq OWNED BY shoppingcartitem.shoppingcartitemid;
-
-CREATE SEQUENCE specialoffer_specialofferid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-
-ALTER SEQUENCE specialoffer_specialofferid_seq OWNED BY specialoffer.specialofferid;
-
-CREATE VIEW vindividualcustomer AS
- SELECT p.businessentityid,
-    p.title,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.suffix,
-    pp.phonenumber,
-    pnt.name AS phonenumbertype,
-    ea.emailaddress,
-    p.emailpromotion,
-    at.name AS addresstype,
-    a.addressline1,
-    a.addressline2,
-    a.city,
-    sp.name AS stateprovincename,
-    a.postalcode,
-    cr.name AS countryregionname,
-    p.demographics
-   FROM (((((((((person p
-     JOIN businessentityaddress bea ON ((bea.businessentityid = p.businessentityid)))
-     JOIN address a ON ((a.addressid = bea.addressid)))
-     JOIN stateprovince sp ON ((sp.stateprovinceid = a.stateprovinceid)))
-     JOIN countryregion cr ON (((cr.countryregioncode)::text = (sp.countryregioncode)::text)))
-     JOIN addresstype at ON ((at.addresstypeid = bea.addresstypeid)))
-     JOIN customer c ON ((c.personid = p.businessentityid)))
-     LEFT JOIN emailaddress ea ON ((ea.businessentityid = p.businessentityid)))
-     LEFT JOIN personphone pp ON ((pp.businessentityid = p.businessentityid)))
-     LEFT JOIN phonenumbertype pnt ON ((pnt.phonenumbertypeid = pp.phonenumbertypeid)))
-  WHERE (c.storeid IS NULL);
-
-
-
-CREATE VIEW vpersondemographics AS
- SELECT businessentityid,
-    (((xpath('n:TotalPurchaseYTD/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::money AS totalpurchaseytd,
-    (((xpath('n:DateFirstPurchase/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::date AS datefirstpurchase,
-    (((xpath('n:BirthDate/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::date AS birthdate,
-    ((xpath('n:MaritalStatus/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying(1) AS maritalstatus,
-    ((xpath('n:YearlyIncome/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying(30) AS yearlyincome,
-    ((xpath('n:Gender/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying(1) AS gender,
-    (((xpath('n:TotalChildren/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::integer AS totalchildren,
-    (((xpath('n:NumberChildrenAtHome/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::integer AS numberchildrenathome,
-    ((xpath('n:Education/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying(30) AS education,
-    ((xpath('n:Occupation/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying(30) AS occupation,
-    (((xpath('n:HomeOwnerFlag/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::boolean AS homeownerflag,
-    (((xpath('n:NumberCarsOwned/text()'::text, demographics, '{{n,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey}}'::text[]))[1])::character varying)::integer AS numbercarsowned
-   FROM person
-  WHERE (demographics IS NOT NULL);
-
-
-
-CREATE VIEW vsalesperson AS
- SELECT s.businessentityid,
-    p.title,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.suffix,
-    e.jobtitle,
-    pp.phonenumber,
-    pnt.name AS phonenumbertype,
-    ea.emailaddress,
-    p.emailpromotion,
-    a.addressline1,
-    a.addressline2,
-    a.city,
-    sp.name AS stateprovincename,
-    a.postalcode,
-    cr.name AS countryregionname,
-    st.name AS territoryname,
-    st."group" AS territorygroup,
-    s.salesquota,
-    s.salesytd,
-    s.saleslastyear
-   FROM ((((((((((salesperson s
-     JOIN employee e ON ((e.businessentityid = s.businessentityid)))
-     JOIN person p ON ((p.businessentityid = s.businessentityid)))
-     JOIN businessentityaddress bea ON ((bea.businessentityid = s.businessentityid)))
-     JOIN address a ON ((a.addressid = bea.addressid)))
-     JOIN stateprovince sp ON ((sp.stateprovinceid = a.stateprovinceid)))
-     JOIN countryregion cr ON (((cr.countryregioncode)::text = (sp.countryregioncode)::text)))
-     LEFT JOIN salesterritory st ON ((st.territoryid = s.territoryid)))
-     LEFT JOIN emailaddress ea ON ((ea.businessentityid = p.businessentityid)))
-     LEFT JOIN personphone pp ON ((pp.businessentityid = p.businessentityid)))
-     LEFT JOIN phonenumbertype pnt ON ((pnt.phonenumbertypeid = pp.phonenumbertypeid)));
-
-
-
-CREATE VIEW vsalespersonsalesbyfiscalyears AS
- SELECT salestotal."SalesPersonID",
-    salestotal."FullName",
-    salestotal."JobTitle",
-    salestotal."SalesTerritory",
-    salestotal."2012",
-    salestotal."2013",
-    salestotal."2014"
-   FROM public.crosstab('SELECT
-    SalesPersonID
-    ,FullName
-    ,JobTitle
-    ,SalesTerritory
-    ,FiscalYear
-    ,SalesTotal
-FROM vSalesPersonSalesByFiscalYearsData
-ORDER BY 2,4'::text, 'SELECT unnest(''{2012,2013,2014}''::text[])'::text) salestotal("SalesPersonID" integer, "FullName" text, "JobTitle" text, "SalesTerritory" text, "2012" numeric(12,4), "2013" numeric(12,4), "2014" numeric(12,4));
-
-
-
-CREATE VIEW vsalespersonsalesbyfiscalyearsdata AS
- SELECT granular.salespersonid,
-    granular.fullname,
-    granular.jobtitle,
-    granular.salesterritory,
-    sum(granular.subtotal) AS salestotal,
-    granular.fiscalyear
-   FROM ( SELECT soh.salespersonid,
-            ((((p.firstname)::text || ' '::text) || COALESCE(((p.middlename)::text || ' '::text), ''::text)) || (p.lastname)::text) AS fullname,
-            e.jobtitle,
-            st.name AS salesterritory,
-            soh.subtotal,
-            date_part('year'::text, (soh.orderdate + '6 mons'::interval)) AS fiscalyear
-           FROM ((((salesperson sp
-             JOIN salesorderheader soh ON ((sp.businessentityid = soh.salespersonid)))
-             JOIN salesterritory st ON ((sp.territoryid = st.territoryid)))
-             JOIN employee e ON ((soh.salespersonid = e.businessentityid)))
-             JOIN person p ON ((p.businessentityid = sp.businessentityid)))) granular
-  GROUP BY granular.salespersonid, granular.fullname, granular.jobtitle, granular.salesterritory, granular.fiscalyear;
-
-
-
-CREATE VIEW vstorewithaddresses AS
- SELECT s.businessentityid,
-    s.name,
-    at.name AS addresstype,
-    a.addressline1,
-    a.addressline2,
-    a.city,
-    sp.name AS stateprovincename,
-    a.postalcode,
-    cr.name AS countryregionname
-   FROM (((((store s
-     JOIN businessentityaddress bea ON ((bea.businessentityid = s.businessentityid)))
-     JOIN address a ON ((a.addressid = bea.addressid)))
-     JOIN stateprovince sp ON ((sp.stateprovinceid = a.stateprovinceid)))
-     JOIN countryregion cr ON (((cr.countryregioncode)::text = (sp.countryregioncode)::text)))
-     JOIN addresstype at ON ((at.addresstypeid = bea.addresstypeid)));
-
-
-
-CREATE VIEW vstorewithcontacts AS
- SELECT s.businessentityid,
-    s.name,
-    ct.name AS contacttype,
-    p.title,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    p.suffix,
-    pp.phonenumber,
-    pnt.name AS phonenumbertype,
-    ea.emailaddress,
-    p.emailpromotion
-   FROM ((((((store s
-     JOIN businessentitycontact bec ON ((bec.businessentityid = s.businessentityid)))
-     JOIN contacttype ct ON ((ct.contacttypeid = bec.contacttypeid)))
-     JOIN person p ON ((p.businessentityid = bec.personid)))
-     LEFT JOIN emailaddress ea ON ((ea.businessentityid = p.businessentityid)))
-     LEFT JOIN personphone pp ON ((pp.businessentityid = p.businessentityid)))
-     LEFT JOIN phonenumbertype pnt ON ((pnt.phonenumbertypeid = pp.phonenumbertypeid)));
-
-
-
-CREATE VIEW vstorewithdemographics AS
- SELECT store.businessentityid,
-    store.name,
-    ((unnest(xpath('/ns:StoreSurvey/ns:AnnualSales/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying)::money AS "AnnualSales",
-    ((unnest(xpath('/ns:StoreSurvey/ns:AnnualRevenue/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying)::money AS "AnnualRevenue",
-    (unnest(xpath('/ns:StoreSurvey/ns:BankName/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying(50) AS "BankName",
-    (unnest(xpath('/ns:StoreSurvey/ns:BusinessType/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying(5) AS "BusinessType",
-    ((unnest(xpath('/ns:StoreSurvey/ns:YearOpened/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying)::integer AS "YearOpened",
-    (unnest(xpath('/ns:StoreSurvey/ns:Specialty/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying(50) AS "Specialty",
-    ((unnest(xpath('/ns:StoreSurvey/ns:SquareFeet/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying)::integer AS "SquareFeet",
-    (unnest(xpath('/ns:StoreSurvey/ns:Brands/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying(30) AS "Brands",
-    (unnest(xpath('/ns:StoreSurvey/ns:Internet/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying(30) AS "Internet",
-    ((unnest(xpath('/ns:StoreSurvey/ns:NumberEmployees/text()'::text, store.demographics, '{{ns,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/StoreSurvey}}'::text[])))::character varying)::integer AS "NumberEmployees"
-   FROM store;
-
-
-
-ALTER TABLE ONLY department ALTER COLUMN departmentid SET DEFAULT nextval('department_departmentid_seq'::regclass);
-
-ALTER TABLE ONLY jobcandidate ALTER COLUMN jobcandidateid SET DEFAULT nextval('jobcandidate_jobcandidateid_seq'::regclass);
-
-ALTER TABLE ONLY shift ALTER COLUMN shiftid SET DEFAULT nextval('shift_shiftid_seq'::regclass);
-
-ALTER TABLE ONLY address ALTER COLUMN addressid SET DEFAULT nextval('address_addressid_seq'::regclass);
-
-ALTER TABLE ONLY addresstype ALTER COLUMN addresstypeid SET DEFAULT nextval('addresstype_addresstypeid_seq'::regclass);
-
-ALTER TABLE ONLY businessentity ALTER COLUMN businessentityid SET DEFAULT nextval('businessentity_businessentityid_seq'::regclass);
-
-ALTER TABLE ONLY contacttype ALTER COLUMN contacttypeid SET DEFAULT nextval('contacttype_contacttypeid_seq'::regclass);
-
-ALTER TABLE ONLY emailaddress ALTER COLUMN emailaddressid SET DEFAULT nextval('emailaddress_emailaddressid_seq'::regclass);
-
-ALTER TABLE ONLY phonenumbertype ALTER COLUMN phonenumbertypeid SET DEFAULT nextval('phonenumbertype_phonenumbertypeid_seq'::regclass);
-
-ALTER TABLE ONLY stateprovince ALTER COLUMN stateprovinceid SET DEFAULT nextval('stateprovince_stateprovinceid_seq'::regclass);
-
-ALTER TABLE ONLY billofmaterials ALTER COLUMN billofmaterialsid SET DEFAULT nextval('billofmaterials_billofmaterialsid_seq'::regclass);
-
-ALTER TABLE ONLY illustration ALTER COLUMN illustrationid SET DEFAULT nextval('illustration_illustrationid_seq'::regclass);
-
-ALTER TABLE ONLY location ALTER COLUMN locationid SET DEFAULT nextval('location_locationid_seq'::regclass);
-
-ALTER TABLE ONLY product ALTER COLUMN productid SET DEFAULT nextval('product_productid_seq'::regclass);
-
-ALTER TABLE ONLY productcategory ALTER COLUMN productcategoryid SET DEFAULT nextval('productcategory_productcategoryid_seq'::regclass);
-
-ALTER TABLE ONLY productdescription ALTER COLUMN productdescriptionid SET DEFAULT nextval('productdescription_productdescriptionid_seq'::regclass);
-
-ALTER TABLE ONLY productmodel ALTER COLUMN productmodelid SET DEFAULT nextval('productmodel_productmodelid_seq'::regclass);
-
-ALTER TABLE ONLY productphoto ALTER COLUMN productphotoid SET DEFAULT nextval('productphoto_productphotoid_seq'::regclass);
-
-ALTER TABLE ONLY productreview ALTER COLUMN productreviewid SET DEFAULT nextval('productreview_productreviewid_seq'::regclass);
-
-ALTER TABLE ONLY productsubcategory ALTER COLUMN productsubcategoryid SET DEFAULT nextval('productsubcategory_productsubcategoryid_seq'::regclass);
-
-ALTER TABLE ONLY scrapreason ALTER COLUMN scrapreasonid SET DEFAULT nextval('scrapreason_scrapreasonid_seq'::regclass);
-
-ALTER TABLE ONLY transactionhistory ALTER COLUMN transactionid SET DEFAULT nextval('transactionhistory_transactionid_seq'::regclass);
-
-ALTER TABLE ONLY workorder ALTER COLUMN workorderid SET DEFAULT nextval('workorder_workorderid_seq'::regclass);
-
-ALTER TABLE ONLY purchaseorderdetail ALTER COLUMN purchaseorderdetailid SET DEFAULT nextval('purchaseorderdetail_purchaseorderdetailid_seq'::regclass);
-
-ALTER TABLE ONLY purchaseorderheader ALTER COLUMN purchaseorderid SET DEFAULT nextval('purchaseorderheader_purchaseorderid_seq'::regclass);
-
-ALTER TABLE ONLY shipmethod ALTER COLUMN shipmethodid SET DEFAULT nextval('shipmethod_shipmethodid_seq'::regclass);
-
-ALTER TABLE ONLY creditcard ALTER COLUMN creditcardid SET DEFAULT nextval('creditcard_creditcardid_seq'::regclass);
-
-ALTER TABLE ONLY currencyrate ALTER COLUMN currencyrateid SET DEFAULT nextval('currencyrate_currencyrateid_seq'::regclass);
-
-ALTER TABLE ONLY customer ALTER COLUMN customerid SET DEFAULT nextval('customer_customerid_seq'::regclass);
-
-ALTER TABLE ONLY salesorderdetail ALTER COLUMN salesorderdetailid SET DEFAULT nextval('salesorderdetail_salesorderdetailid_seq'::regclass);
-
-ALTER TABLE ONLY salesorderheader ALTER COLUMN salesorderid SET DEFAULT nextval('salesorderheader_salesorderid_seq'::regclass);
-
-ALTER TABLE ONLY salesreason ALTER COLUMN salesreasonid SET DEFAULT nextval('salesreason_salesreasonid_seq'::regclass);
-
-ALTER TABLE ONLY salestaxrate ALTER COLUMN salestaxrateid SET DEFAULT nextval('salestaxrate_salestaxrateid_seq'::regclass);
-
-ALTER TABLE ONLY salesterritory ALTER COLUMN territoryid SET DEFAULT nextval('salesterritory_territoryid_seq'::regclass);
-
-ALTER TABLE ONLY shoppingcartitem ALTER COLUMN shoppingcartitemid SET DEFAULT nextval('shoppingcartitem_shoppingcartitemid_seq'::regclass);
-
-ALTER TABLE ONLY specialoffer ALTER COLUMN specialofferid SET DEFAULT nextval('specialoffer_specialofferid_seq'::regclass);
-
-
-
+COMMIT;
