@@ -234,48 +234,7 @@ CREATE TABLE password (
     passwordsalt character varying(10) NOT NULL,
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW pa AS
- SELECT password.businessentityid AS id,
-    password.businessentityid,
-    password.passwordhash,
-    password.passwordsalt,
-    password.rowguid,
-    password.modifieddate
-   FROM password;
-
-
-
-CREATE VIEW pnt AS
- SELECT phonenumbertyphonenumbertypeid AS id,
-    phonenumbertyphonenumbertypeid,
-    phonenumbertyname,
-    phonenumbertymodifieddate
-   FROM phonenumbertype;
-
-
-
-CREATE VIEW pp AS
- SELECT personphone.businessentityid AS id,
-    personphone.businessentityid,
-    personphone.phonenumber,
-    personphone.phonenumbertypeid,
-    personphone.modifieddate
-   FROM personphone;
-
-
-
-CREATE VIEW sp AS
- SELECT stateprovince.stateprovinceid AS id,
-    stateprovince.stateprovinceid,
-    stateprovince.stateprovincecode,
-    stateprovince.countryregioncode,
-    stateprovince.isonlystateprovinceflag,
-    stateprovince.name,
-    stateprovince.territoryid,
-    stateprovince.rowguid,
-    stateprovince.modifieddate
-   FROM stateprovince;
-
+);
 
 
 CREATE SEQUENCE address_addressid_seq
@@ -362,46 +321,6 @@ CREATE SEQUENCE stateprovince_stateprovinceid_seq
 
 ALTER SEQUENCE stateprovince_stateprovinceid_seq OWNED BY stateprovince.stateprovinceid;
 
-CREATE VIEW vadditionalcontactinfo AS
- SELECT p.businessentityid,
-    p.firstname,
-    p.middlename,
-    p.lastname,
-    (xpath('(act:telephoneNumber)[1]/act:number/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS telephonenumber,
-    btrim((((xpath('(act:telephoneNumber)[1]/act:SpecialInstructions/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1])::character varying)::text) AS telephonespecialinstructions,
-    (xpath('(act:homePostalAddress)[1]/act:Street/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS street,
-    (xpath('(act:homePostalAddress)[1]/act:City/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS city,
-    (xpath('(act:homePostalAddress)[1]/act:StateProvince/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS stateprovince,
-    (xpath('(act:homePostalAddress)[1]/act:PostalCode/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS postalcode,
-    (xpath('(act:homePostalAddress)[1]/act:CountryRegion/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS countryregion,
-    (xpath('(act:homePostalAddress)[1]/act:SpecialInstructions/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS homeaddressspecialinstructions,
-    (xpath('(act:eMail)[1]/act:eMailAddress/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS emailaddress,
-    btrim((((xpath('(act:eMail)[1]/act:SpecialInstructions/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1])::character varying)::text) AS emailspecialinstructions,
-    (xpath('((act:eMail)[1]/act:SpecialInstructions/act:telephoneNumber)[1]/act:number/text()'::text, additional.node, '{{act,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactTypes}}'::text[]))[1] AS emailtelephonenumber,
-    p.rowguid,
-    p.modifieddate
-   FROM (person p
-     LEFT JOIN ( SELECT businessentityid,
-            unnest(xpath('/ci:AdditionalContactInfo'::text, additionalcontactinfo, '{{ci,http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ContactInfo}}'::text[])) AS node
-           FROM person
-          WHERE (additionalcontactinfo IS NOT NULL)) additional ON ((p.businessentityid = additional.businessentityid)));
-
-
-
-CREATE MATERIALIZED VIEW vstateprovincecountryregion AS
- SELECT sp.stateprovinceid,
-    sp.stateprovincecode,
-    sp.isonlystateprovinceflag,
-    sp.name AS stateprovincename,
-    sp.territoryid,
-    cr.countryregioncode,
-    cr.name AS countryregionname
-   FROM (stateprovince sp
-     JOIN countryregion cr ON (((sp.countryregioncode)::text = (cr.countryregioncode)::text)))
-  WITH NO DATA;
-
-
-
 CREATE TABLE billofmaterials (
     billofmaterialsid integer NOT NULL,
     productassemblyid integer,
@@ -418,33 +337,11 @@ CREATE TABLE billofmaterials (
     CONSTRAINT "CK_BillOfMaterials_ProductAssemblyID" CHECK ((productassemblyid <> componentid))
 );
 
-CREATE VIEW bom AS
- SELECT billofmaterials.billofmaterialsid AS id,
-    billofmaterials.billofmaterialsid,
-    billofmaterials.productassemblyid,
-    billofmaterials.componentid,
-    billofmaterials.startdate,
-    billofmaterials.enddate,
-    billofmaterials.unitmeasurecode,
-    billofmaterials.bomlevel,
-    billofmaterials.perassemblyqty,
-    billofmaterials.modifieddate
-   FROM billofmaterials;
-
-
-
 CREATE TABLE culture (
     cultureid character(6) NOT NULL,
     name public."Name" NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW c AS
- SELECT culture.cultureid AS id,
-    culture.cultureid,
-    culture.name,
-    culture.modifieddate
-   FROM culture;
-
-
+);
 
 CREATE TABLE document (
     title character varying(50) NOT NULL,
@@ -461,35 +358,12 @@ CREATE TABLE document (
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     documentnode character varying DEFAULT '/'::character varying NOT NULL,
     CONSTRAINT "CK_Document_Status" CHECK (((status >= 1) AND (status <= 3)))
-);CREATE VIEW d AS
- SELECT document.title,
-    document.owner,
-    document.folderflag,
-    document.filename,
-    document.fileextension,
-    document.revision,
-    document.changenumber,
-    document.status,
-    document.documentsummary,
-    document.document,
-    document.rowguid,
-    document.modifieddate,
-    document.documentnode
-   FROM document;
-
-
-
+);
 CREATE TABLE illustration (
     illustrationid integer NOT NULL,
     diagram xml,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW i AS
- SELECT illustration.illustrationid AS id,
-    illustration.illustrationid,
-    illustration.diagram,
-    illustration.modifieddate
-   FROM illustration;
-
+);
 
 
 CREATE TABLE location (
@@ -501,18 +375,6 @@ CREATE TABLE location (
     CONSTRAINT "CK_Location_Availability" CHECK ((availability >= 0.00)),
     CONSTRAINT "CK_Location_CostRate" CHECK ((costrate >= 0.00))
 );
-
-
-
-CREATE VIEW l AS
- SELECT location.locationid AS id,
-    location.locationid,
-    location.name,
-    location.costrate,
-    location.availability,
-    location.modifieddate
-   FROM location;
-
 
 
 CREATE TABLE product (
@@ -553,51 +415,13 @@ CREATE TABLE product (
     CONSTRAINT "CK_Product_Weight" CHECK ((weight > 0.00))
 );
 
-CREATE VIEW p AS
- SELECT product.productid AS id,
-    product.productid,
-    product.name,
-    product.productnumber,
-    product.makeflag,
-    product.finishedgoodsflag,
-    product.color,
-    product.safetystocklevel,
-    product.reorderpoint,
-    product.standardcost,
-    product.listprice,
-    product.size,
-    product.sizeunitmeasurecode,
-    product.weightunitmeasurecode,
-    product.weight,
-    product.daystomanufacture,
-    product.productline,
-    product.class,
-    product.style,
-    product.productsubcategoryid,
-    product.productmodelid,
-    product.sellstartdate,
-    product.sellenddate,
-    product.discontinueddate,
-    product.rowguid,
-    product.modifieddate
-   FROM product;
-
-
 
 CREATE TABLE productcategory (
     productcategoryid integer NOT NULL,
     name public."Name" NOT NULL,
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW pc AS
- SELECT productcategory.productcategoryid AS id,
-    productcategory.productcategoryid,
-    productcategory.name,
-    productcategory.rowguid,
-    productcategory.modifieddate
-   FROM productcategory;
-
-
+);
 
 CREATE TABLE productcosthistory (
     productid integer NOT NULL,
@@ -611,44 +435,19 @@ CREATE TABLE productcosthistory (
 
 
 
-CREATE VIEW pch AS
- SELECT productcosthistory.productid AS id,
-    productcosthistory.productid,
-    productcosthistory.startdate,
-    productcosthistory.enddate,
-    productcosthistory.standardcost,
-    productcosthistory.modifieddate
-   FROM productcosthistory;
-
-
 
 CREATE TABLE productdescription (
     productdescriptionid integer NOT NULL,
     description character varying(400) NOT NULL,
     rowguid uuid DEFAULT public.uuid_generate_v1() NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL
-);CREATE VIEW pd AS
- SELECT productdescription.productdescriptionid AS id,
-    productdescription.productdescriptionid,
-    productdescription.description,
-    productdescription.rowguid,
-    productdescription.modifieddate
-   FROM productdescription;
-
-
+);
 
 CREATE TABLE productdocument (
     productid integer NOT NULL,
     modifieddate timestamp without time zone DEFAULT now() NOT NULL,
     documentnode character varying DEFAULT '/'::character varying NOT NULL
-);CREATE VIEW pdoc AS
- SELECT productdocument.productid AS id,
-    productdocument.productid,
-    productdocument.modifieddate,
-    productdocument.documentnode
-   FROM productdocument;
-
-
+);
 
 CREATE TABLE productinventory (
     productid integer NOT NULL,
