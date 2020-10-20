@@ -12,6 +12,8 @@
 -- SET row_security = off;
 -- SET default_tablespace = '';
 
+
+
 CREATE EXTENSION IF NOT EXISTS tablefunc WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
